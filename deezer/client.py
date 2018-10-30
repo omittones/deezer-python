@@ -6,7 +6,7 @@ Implements a client class to query the
 
 from __future__ import unicode_literals, absolute_import
 
-import requests
+from requests.sessions import Session
 from six import text_type, iteritems
 from six.moves.urllib.parse import urlencode
 
@@ -52,7 +52,7 @@ class Client(object):
 
         self.use_ssl = kwargs.get("use_ssl", self.use_ssl)
         self.host = kwargs.get("host", self.host)
-        self.session = requests.Session()
+        self.session = Session()
         self.options = kwargs
         self._authorize_url = None
 

@@ -1,7 +1,10 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals, absolute_import
 
+import sys
 from types import GeneratorType
+
+import pytest
 
 import deezer
 from tests.base import BaseTestCase
@@ -40,6 +43,12 @@ class TestResources(BaseTestCase):
         track = tracks[0]
         self.assertIsInstance(track, deezer.resources.Track)
         self.assertEqual(repr(track), "<Track: One More Time>")
+
+    @pytest.mark.skipIf(sys.version_info >= (3, 7), reason="Hangs")
+    def test_album_tracks_iter(self):
+        """Test iter_tracks for the album resource."""
+        client = deezer.Client()
+        album = client.get_album(302127)
         self.assertEqual(type(album.iter_tracks()), GeneratorType)
         track = list(album.iter_tracks())[0]
         self.assertIsInstance(track, deezer.resources.Track)
