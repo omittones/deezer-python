@@ -248,6 +248,14 @@ class Client:
         """
         return self.get_object("user", object_id)
 
+    def get_user_playlists(self, user_id):
+        """
+        Get the users playlists
+
+        :returns: a list of :class:`~deezer.resources.Playlist` objects
+        """
+        return self.get_object("user", object_id=user_id, relation='playlists')
+
     def search(self, query, relation=None, index=0, limit=25, **kwargs):
         """
         Search track, album, artist or user
