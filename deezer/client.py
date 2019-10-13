@@ -49,6 +49,8 @@ class Client:
         "chart": Chart,
     }
 
+    follow_next_links = False
+
     def __init__(self, **kwargs):
         super().__init__()
 
@@ -70,6 +72,7 @@ class Client:
         self.app_id = kwargs.get("app_id")
         self.app_secret = kwargs.get("app_secret")
         self.access_token = kwargs.get("access_token")
+        self.follow_next_links = kwargs.get("follow_next_links", False)
 
     def _process_json(self, item, parent=None):
         """
@@ -143,14 +146,33 @@ class Client:
 
         :returns: json dictionary
         """
+
+        def check_error(json):
+            if "error" in json:
+                raise ValueError(
+                    "API request return error for object: %s id: %s" % (object_t, object_id)
+                )
+
+        follow = self.follow_next_links
+        if 'follow_next_links' in kwargs:
+            follow = kwargs.get('follow_next_links')
+            del kwargs['follow_next_links']
+
         url = self.object_url(object_t, object_id, relation, **kwargs)
         response = self.session.get(url)
         json = response.json()
-        if "error" in json:
-            raise ValueError(
-                "API request return error for object: %s id: %s" % (object_t, object_id)
-            )
-        return self._process_json(json, parent)
+        check_error(json)
+
+        items = self._process_json(json, parent)
+        if follow:
+            while 'next' in json:
+                url = json.get('next')
+                response = self.session.get(url)
+                json = response.json()
+                check_error(json)
+                items.extend(self._process_json(json, parent))
+
+        return items
 
     def get_chart(self, relation=None, index=0, limit=10, **kwargs):
         """

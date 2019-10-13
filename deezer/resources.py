@@ -269,6 +269,20 @@ class User(Resource):
 class Playlist(Resource):
     """To access a playlist."""
 
+    def get_tracks(self, **kwargs):
+        """
+        :returns: list of  :mod:`Track <deezer.resources.Track>` instances
+        """
+        return self.get_relation("tracks", **kwargs)
+
+    def iter_tracks(self, **kwargs):
+        """
+        Iterate tracks in the radio
+
+        :returns: list of  :mod:`Track <deezer.resources.Track>` instances
+        """
+        return self.iter_relation("tracks", **kwargs)
+
 
 class Comment(Resource):
     """To access a comment."""
